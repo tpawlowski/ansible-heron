@@ -1,0 +1,10 @@
+[all:vars]
+ansible_user = ubuntu
+ansible_ssh_private_key_file = ~/.ssh/streaming.pem
+ansible_host_key_checking = False
+
+[masters]
+127.0.0.1
+
+[slaves]
+127.0.0.1

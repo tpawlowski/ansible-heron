@@ -1,0 +1,32 @@
+- hosts: all
+  gather_facts: False
+  name: Install dependencies for alpenglow no-framework benchmark
+  become: yes
+  pre_tasks:
+  - name: install python
+    raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+    register: output
+    changed_when: output.stdout != ""
+  roles:
+    - {role: 'common', tags: 'common'}
+
+- name: Setup master
+  hosts: masters
+  sudo: yes
+  roles:
+    - { role: 'hdfs_start', tags: 'hdfs_start' }
+    - { role: 'zookeeper', tags: 'zookeeper' }
+    - { role: 'mesos_install', tags: 'mesos_install'}
+    - { role: 'mesos_start_master', tags: 'mesos_start_master'}
+    - { role: 'aurora_scheduler', tags: 'aurora_scheduler'}
+    - { role: 'aurora_client', tags: 'aurora_client'}
+    - { role: 'heron', tags: 'heron' }
+    - { role: 'source_code', tags: 'source_code' }
+
+- name: Setup workers
+  hosts: slaves
+  sudo: yes
+  roles:
+    - { role: 'mesos_install', tags: 'mesos_install'}
+    - { role: 'mesos_start_slave', tags: 'mesos_start_slave' }
+    - { role: 'aurora_executor', tags: 'aurora_executor' }
